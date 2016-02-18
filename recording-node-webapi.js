@@ -24,6 +24,9 @@ var express = require('express');
 var app = express();
 var bodyParser = require('body-parser');
 
+var port = process.env.VCAP_APP_PORT || 80;
+var host = 
+
 /**
  * Required to process the HTTP body
  * req.body has the Object while req.rawBody has the JSON string
@@ -32,6 +35,11 @@ var bodyParser = require('body-parser');
 app.use(bodyParser.json());
 
 app.post('/', function(req, res){
+    
+    console.dir(req.body);
+    var recordUrl = req.protocol + '://' + req.get('host') + '/recordings';
+    recordUrl = 'https://' + req.get('host') + '/recordings';
+
 	// Create a new instance of the TropoWebAPI object.
 	var tropo = new tropoApi.TropoWebAPI();
 	if(req.body['session']['from']['channel'] == "TEXT") {
@@ -50,10 +58,13 @@ app.post('/', function(req, res){
 	// Demonstrates how to use the base Tropo action classes.
 	var say = new Say("Please ree cord your message after the beep.");
 	var choices = new Choices(null, null, "#");
+    // -Xv: the above lines add stuff to the response that causes an execption in tropo
+    say = null;
+    choices = null;
 
 	// Action classes can be passed as parameters to TropoWebAPI class methods.
 	// use the record method https://www.tropo.com/docs/webapi/record.htm
-	tropo.record(3, false, null, choices, null, 5, 60, null, null, "recording", null, say, 5, null, "http://example.com/tropo", null, null);
+	tropo.record(3, false, null, choices, null, 5, 60, null, null, "recording", null, say, 5, null, recordUrl, null, null);
 
 	// use the on method https://www.tropo.com/docs/webapi/on.htm
 	tropo.on("continue", null, "/answer", true);
@@ -62,7 +73,10 @@ app.post('/', function(req, res){
 	
 	tropo.on("error", null, "/error", true);
 
-    res.send(tropoApi.TropoJSON(tropo));
+    var tropoJson = tropoApi.TropoJSON(tropo);
+    console.log('returning...');
+    console.log(JSON.stringify(tropo, null, 2));
+    res.send(tropoJson);
 }});
 
 app.post('/answer', function(req, res){
@@ -86,5 +100,10 @@ app.post('/error', function(req, res){
 	res.send(tropoApi.TropoJSON(tropo));
 });
 
-app.listen(8000);
-console.log('Server running on port :8000');
+app.post('/recordings', function(req, res){
+    console.log('got a recording!');
+    console.dir(req.headers);
+    res.status(200).json({status:"ok"});
+});
+app.listen(port);
+console.log('Server running on port :' + port);
