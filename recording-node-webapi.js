@@ -4,23 +4,32 @@
  * for the complete license
  */
 
+/*
+ * Downloaded from
+ *   https://github.com/tropo/tropo-samples/blob/master/javascript/recording-node-webapi.js
+ * Described in
+ *   https://www.tropo.com/docs/webapi/tutorials/nodejs-voice-recording-example
+ *   https://www.tropo.com/docs/webapi/tutorials/nodejs-voice-recording-example/behind-scenes-json-recording-example
+ *
+ * -Xv
+ */
+
 /**
  * Showing with the Express framework http://expressjs.com/
  * Express must be installed for this sample to work
  */
 
-require('../lib/tropo-webapi.js');
+require('tropo-webapi');
 var express = require('express');
-var app = express.createServer();
+var app = express();
+var bodyParser = require('body-parser');
 
 /**
  * Required to process the HTTP body
  * req.body has the Object while req.rawBody has the JSON string
  */
 
-app.configure(function(){
-	app.use(express.bodyDecoder());
-});
+app.use(bodyParser.json());
 
 app.post('/', function(req, res){
 	// Create a new instance of the TropoWebAPI object.
