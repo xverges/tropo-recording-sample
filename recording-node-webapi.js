@@ -55,16 +55,31 @@ app.post('/', function(req, res){
 	
 	tropo.say("Welcome to my Tropo Web API node demo.");
 	
-	// Demonstrates how to use the base Tropo action classes.
-	var say = new Say("Please ree cord your message after the beep.");
-	var choices = new Choices(null, null, "#");
-    // -Xv: the above lines add stuff to the response that causes an execption in tropo
-    say = null;
-    choices = null;
+    var say = {value: "Please ree cord your message after the beep."};
+    var choices = {terminator: "#"};
 
 	// Action classes can be passed as parameters to TropoWebAPI class methods.
 	// use the record method https://www.tropo.com/docs/webapi/record.htm
-	tropo.record(3, false, null, choices, null, 5, 60, null, null, "recording", null, say, 5, null, recordUrl, null, null);
+    var record = { 
+        attempts: 3,
+        bargein: false,
+        beep: null,
+        choices: choices,
+        format: null,
+        maxSilence: 5,
+        maxTime: 60,
+        method: 'POST',
+        minConfidence: null,
+        name: "recording",
+        required: true,
+        say: say,
+        timeout: 5,
+        transcription: null,
+        url: recordUrl,
+        password: null,
+        username: null
+    };
+    tropo.tropo.push({record: record});
 
 	// use the on method https://www.tropo.com/docs/webapi/on.htm
 	tropo.on("continue", null, "/answer", true);
