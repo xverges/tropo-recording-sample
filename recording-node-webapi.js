@@ -5,7 +5,7 @@
  */
 
 /*
- * Downloaded from
+ * Originally downloaded from
  *   https://github.com/tropo/tropo-samples/blob/master/javascript/recording-node-webapi.js
  * Described in
  *   https://www.tropo.com/docs/webapi/tutorials/nodejs-voice-recording-example
