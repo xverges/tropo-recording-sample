@@ -19,7 +19,7 @@
  * Express must be installed for this sample to work
  */
 
-require('tropo-webapi');
+var tropoApi = require('tropo-webapi');
 var express = require('express');
 var app = express();
 var bodyParser = require('body-parser');
@@ -33,13 +33,13 @@ app.use(bodyParser.json());
 
 app.post('/', function(req, res){
 	// Create a new instance of the TropoWebAPI object.
-	var tropo = new TropoWebAPI();
+	var tropo = new tropoApi.TropoWebAPI();
 	if(req.body['session']['from']['channel'] == "TEXT") {
 		tropo.say("This application is voice only.  Please call in using a regular phone, SIP phone or via Skype.");
 		
 		tropo.on("continue", null, null, true);
 		
-		res.send(TropoJSON(tropo));
+		res.send(tropoApi.TropoJSON(tropo));
 	}
 	
 	// Use the say method https://www.tropo.com/docs/webapi/say.htm
@@ -62,28 +62,28 @@ app.post('/', function(req, res){
 	
 	tropo.on("error", null, "/error", true);
 
-    res.send(TropoJSON(tropo));
+    res.send(tropoApi.TropoJSON(tropo));
 }});
 
 app.post('/answer', function(req, res){
-	var tropo = new TropoWebAPI();
+	var tropo = new tropoApi.TropoWebAPI();
 	tropo.say("Recording successfully saved.  Thank you!");
 
-	res.send(TropoJSON(tropo));
+	res.send(tropoApi.TropoJSON(tropo));
 });
 
 app.post('/timeout', function(req, res){
-	var tropo = new TropoWebAPI();
+	var tropo = new tropoApi.TropoWebAPI();
 	tropo.say("Sorry, I didn't hear anything.  Please call back and try again.");
 
-	res.send(TropoJSON(tropo));
+	res.send(tropoApi.TropoJSON(tropo));
 });
 
 app.post('/error', function(req, res){
-	var tropo = new TropoWebAPI();
+	var tropo = new tropoApi.TropoWebAPI();
 	tropo.say("Recording failed.  Please call back and try again.");
 
-	res.send(TropoJSON(tropo));
+	res.send(tropoApi.TropoJSON(tropo));
 });
 
 app.listen(8000);
