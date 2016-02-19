@@ -23,6 +23,7 @@ var tropoApi = require('tropo-webapi');
 var express = require('express');
 var app = express();
 var bodyParser = require('body-parser');
+var multer = require('multer');
 
 var port = process.env.VCAP_APP_PORT || 80;
 var host = 
@@ -115,7 +116,15 @@ app.post('/error', function(req, res){
 	res.send(tropoApi.TropoJSON(tropo));
 });
 
-app.post('/recordings', function(req, res){
+var uploadNone = multer({fileFilter: function(req, file, cb) {
+    console.log('multer filter');
+    console.log('  fieldname: ' + file.fieldname);
+    console.log('  originalname: ' + file.originalname);
+    console.log('  encoding: ' + file.encoding);
+    console.log('  mimetype: ' + file.mimetype);
+    cb(null, false);
+}});
+app.post('/recordings', uploadNone.any(), function(req, res){
     console.log('got a recording!');
     console.dir(req.headers);
     res.status(200).json({status:"ok"});
