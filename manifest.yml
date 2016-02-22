@@ -3,5 +3,5 @@ applications:
   memory: 256M
   instances: 1
   domain: mybluemix.net
-  name: xvtropojarvis
-  host: xvtropojarvis
+  name: tropo-muzak 
+  host: tropo-muzak

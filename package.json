@@ -18,6 +18,7 @@
     "body-parser": "^1.15.0",
     "express": "^4.13.4",
     "multer": "^1.1.0",
+    "request": "^2.69.0",
     "tropo-webapi": "^1.2.0"
   },
   "main": "recording-node-webapi.js",

@@ -24,9 +24,9 @@ var express = require('express');
 var app = express();
 var bodyParser = require('body-parser');
 var multer = require('multer');
+var request = require('request');
 
 var port = process.env.VCAP_APP_PORT || 80;
-var host = 
 
 /**
  * Required to process the HTTP body
@@ -38,23 +38,13 @@ app.use(bodyParser.json());
 app.post('/', function(req, res){
     
     console.dir(req.body);
-    var recordUrl = req.protocol + '://' + req.get('host') + '/recordings';
-    recordUrl = 'https://' + req.get('host') + '/recordings';
+    var sessionId = req.body.session.id;
+    var recordUrl = 'https://' + req.get('host') + '/recordings?sessionId=' + sessionId;
 
     // Create a new instance of the TropoWebAPI object.
     var tropo = new tropoApi.TropoWebAPI();
-    if(req.body['session']['from']['channel'] == "TEXT") {
-        tropo.say("This application is voice only.  Please call in using a regular phone, SIP phone or via Skype.");
-        
-        tropo.on("continue", null, null, true);
-        
-        res.send(tropoApi.TropoJSON(tropo));
-    }
     
-    // Use the say method https://www.tropo.com/docs/webapi/say.htm
-    else {
-    
-    tropo.say("Welcome to my Tropo Web API node demo.");
+    tropo.say("Welcome to this recording demo");
     
     var say = {value: "Please ree cord your message after the beep."};
     var choices = {terminator: "#"};
@@ -63,6 +53,7 @@ app.post('/', function(req, res){
     // use the record method https://www.tropo.com/docs/webapi/record.htm
     var record = { 
         attempts: 3,
+        asyncUpload: true,
         bargein: false,
         beep: null,
         choices: choices,
@@ -74,30 +65,42 @@ app.post('/', function(req, res){
         name: "recording",
         required: true,
         say: say,
-        timeout: 5,
+        timeout: 3,
         transcription: null,
         url: recordUrl,
         password: null,
         username: null
     };
     tropo.tropo.push({record: record});
+    tropo.say('1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20');
+    tropo.say('1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20');
+    tropo.say('1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20');
 
     // use the on method https://www.tropo.com/docs/webapi/on.htm
-    tropo.on("continue", null, "/answer", true);
+    tropo.on("continue", null, "/continue", true);
+    tropo.on("recordingPosted", null, "/recordingPosted", true);
     
     tropo.on("incomplete", null, "/timeout", true);
     
     tropo.on("error", null, "/error", true);
 
-    var tropoJson = tropoApi.TropoJSON(tropo);
-    console.log('returning...');
     console.log(JSON.stringify(tropo, null, 2));
-    res.send(tropoJson);
-}});
+    res.send(tropoApi.TropoJSON(tropo));
+});
 
-app.post('/answer', function(req, res){
+app.post('/continue', function(req, res){
     var tropo = new tropoApi.TropoWebAPI();
-    tropo.say("Recording successfully saved.  Thank you!");
+    tropo.say("Continue handler one");
+    tropo.say("Continue handler two");
+
+    res.send(tropoApi.TropoJSON(tropo));
+});
+
+app.post('/recordingPosted', function(req, res){
+
+    var tropo = new tropoApi.TropoWebAPI();
+    tropo.say("Recording posted handler one");
+    tropo.say("Recording posted handler two");
 
     res.send(tropoApi.TropoJSON(tropo));
 });
@@ -116,18 +119,30 @@ app.post('/error', function(req, res){
     res.send(tropoApi.TropoJSON(tropo));
 });
 
-var uploadNone = multer({fileFilter: function(req, file, cb) {
-    console.log('multer filter');
-    console.log('  fieldname: ' + file.fieldname);
-    console.log('  originalname: ' + file.originalname);
-    console.log('  encoding: ' + file.encoding);
-    console.log('  mimetype: ' + file.mimetype);
-    cb(null, false);
-}});
-app.post('/recordings', uploadNone.any(), function(req, res){
+var upload = multer({ dest: 'uploads/' });
+app.post('/recordings', upload.single('filename'), function(req, res){
     console.log('got a recording!');
     console.dir(req.headers);
+    if (!req.file || !req.file.size) {
+        console.log('empty file');
+    } else {
+        console.log('size: ' + req.file.size);
+        var sessionId = req.query.sessionId;
+        var url = 'https://api.tropo.com/1.0/sessions/' +
+                  sessionId +
+                  '/signals?action=signal&value=recordingPosted';
+
+        request.get(url)
+           .on('error', function(err) {
+                console.error('call to tropo failed');
+                console.log(err);
+            })
+            .on('response', function(response) {
+                console.log('asked tropo to interrupt the muzak');
+            });
+    }
     res.status(200).json({status:"ok"});
 });
+
 app.listen(port);
 console.log('Server running on port :' + port);
