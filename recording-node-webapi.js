@@ -41,26 +41,26 @@ app.post('/', function(req, res){
     var recordUrl = req.protocol + '://' + req.get('host') + '/recordings';
     recordUrl = 'https://' + req.get('host') + '/recordings';
 
-	// Create a new instance of the TropoWebAPI object.
-	var tropo = new tropoApi.TropoWebAPI();
-	if(req.body['session']['from']['channel'] == "TEXT") {
-		tropo.say("This application is voice only.  Please call in using a regular phone, SIP phone or via Skype.");
-		
-		tropo.on("continue", null, null, true);
-		
-		res.send(tropoApi.TropoJSON(tropo));
-	}
-	
-	// Use the say method https://www.tropo.com/docs/webapi/say.htm
-	else {
-	
-	tropo.say("Welcome to my Tropo Web API node demo.");
-	
+    // Create a new instance of the TropoWebAPI object.
+    var tropo = new tropoApi.TropoWebAPI();
+    if(req.body['session']['from']['channel'] == "TEXT") {
+        tropo.say("This application is voice only.  Please call in using a regular phone, SIP phone or via Skype.");
+        
+        tropo.on("continue", null, null, true);
+        
+        res.send(tropoApi.TropoJSON(tropo));
+    }
+    
+    // Use the say method https://www.tropo.com/docs/webapi/say.htm
+    else {
+    
+    tropo.say("Welcome to my Tropo Web API node demo.");
+    
     var say = {value: "Please ree cord your message after the beep."};
     var choices = {terminator: "#"};
 
-	// Action classes can be passed as parameters to TropoWebAPI class methods.
-	// use the record method https://www.tropo.com/docs/webapi/record.htm
+    // Action classes can be passed as parameters to TropoWebAPI class methods.
+    // use the record method https://www.tropo.com/docs/webapi/record.htm
     var record = { 
         attempts: 3,
         bargein: false,
@@ -82,12 +82,12 @@ app.post('/', function(req, res){
     };
     tropo.tropo.push({record: record});
 
-	// use the on method https://www.tropo.com/docs/webapi/on.htm
-	tropo.on("continue", null, "/answer", true);
-	
-	tropo.on("incomplete", null, "/timeout", true);
-	
-	tropo.on("error", null, "/error", true);
+    // use the on method https://www.tropo.com/docs/webapi/on.htm
+    tropo.on("continue", null, "/answer", true);
+    
+    tropo.on("incomplete", null, "/timeout", true);
+    
+    tropo.on("error", null, "/error", true);
 
     var tropoJson = tropoApi.TropoJSON(tropo);
     console.log('returning...');
@@ -96,24 +96,24 @@ app.post('/', function(req, res){
 }});
 
 app.post('/answer', function(req, res){
-	var tropo = new tropoApi.TropoWebAPI();
-	tropo.say("Recording successfully saved.  Thank you!");
+    var tropo = new tropoApi.TropoWebAPI();
+    tropo.say("Recording successfully saved.  Thank you!");
 
-	res.send(tropoApi.TropoJSON(tropo));
+    res.send(tropoApi.TropoJSON(tropo));
 });
 
 app.post('/timeout', function(req, res){
-	var tropo = new tropoApi.TropoWebAPI();
-	tropo.say("Sorry, I didn't hear anything.  Please call back and try again.");
+    var tropo = new tropoApi.TropoWebAPI();
+    tropo.say("Sorry, I didn't hear anything.  Please call back and try again.");
 
-	res.send(tropoApi.TropoJSON(tropo));
+    res.send(tropoApi.TropoJSON(tropo));
 });
 
 app.post('/error', function(req, res){
-	var tropo = new tropoApi.TropoWebAPI();
-	tropo.say("Recording failed.  Please call back and try again.");
+    var tropo = new tropoApi.TropoWebAPI();
+    tropo.say("Recording failed.  Please call back and try again.");
 
-	res.send(tropoApi.TropoJSON(tropo));
+    res.send(tropoApi.TropoJSON(tropo));
 });
 
 var uploadNone = multer({fileFilter: function(req, file, cb) {
